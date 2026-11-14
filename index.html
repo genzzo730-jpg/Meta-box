@@ -19,11 +19,19 @@ video#cam{position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-eve
 #go{font:700 20px system-ui;color:#fff;border:0;border-radius:999px;padding:16px 34px;background:linear-gradient(90deg,#5a7bff,#b15cff);box-shadow:0 8px 30px rgba(108,140,255,.45)}
 #msg{margin-top:14px;min-height:20px;font-size:14px;color:#ffd27a;max-width:560px}
 #note{margin-top:10px;font-size:12px;opacity:.55;max-width:560px}
+
+#app-screen{display:none;position:fixed;z-index:20;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88vw,980px);height:min(76vh,650px);background:#171b25;border:1px solid #667085;border-radius:20px;box-shadow:0 18px 70px #000b;overflow:hidden;touch-action:auto}
+#app-screen header{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:#252b38;font-size:14px;font-weight:700}
+#app-screen button{border:0;border-radius:9px;padding:8px 14px;background:#3e69db;color:white;font-weight:700}
+#app-screen iframe{width:100%;height:calc(100% - 48px);border:0;background:#fff}
+#app-screen .app-fallback{display:none;padding:10px;text-align:center;background:#252b38;font-size:12px}
+#app-screen .app-fallback a{color:#9db9ff}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <video id="cam" playsinline muted autoplay></video>
+<div id="app-screen"><header><span id="app-title">Aplicativo</span><button id="app-back">← Voltar ao META BOX</button></header><iframe id="app-frame" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe><div class="app-fallback" id="app-fallback">Se o site bloquear a exibição incorporada, <a id="app-open" target="_blank" rel="noopener">abra o aplicativo em uma nova página</a>.</div></div>
 <div id="intro">
   <h1><span>META BOX</span></h1>
   <div class="by">por emjoythemr</div>
@@ -392,6 +400,18 @@ if(navigator.getBattery){
   }).catch(function(){});
 }
 // Menu META BOX recriado como interface real, com elementos e botões interativos.
+
+function openAppScreen(name,url){
+  const panel=$('app-screen'),frame=$('app-frame'),fallback=$('app-fallback'),link=$('app-open');
+  $('app-title').textContent=name;
+  frame.src=url;link.href=url;fallback.style.display='block';
+  panel.style.display='block';tabsP.mesh.visible=false;menuP.mesh.visible=false;hudP.mesh.visible=false;
+}
+function closeAppScreen(){
+  $('app-frame').src='about:blank';$('app-screen').style.display='none';
+  tabsP.mesh.visible=true;tabsP.dirty=true;
+}
+$('app-back').addEventListener('click',closeAppScreen);
 function drawTabs(c,p){
   c.clearRect(0,0,p.pw,p.ph);
   const W=828,H=522,s=Math.min(p.pw/W,p.ph/H),ox=(p.pw-W*s)/2,oy=(p.ph-H*s)/2;
@@ -438,7 +458,7 @@ function drawTabs(c,p){
       box(x+38,y+8,36,36,10,a[2],null);
       txt(a[0],x+56,y+26,22,800,'#fff');
       txt(a[0]==='▶'?'YouTube':a[0]==='G'?'Google':a[0]==='✉'?'Gmail':a[0]==='⌖'?'Maps':a[0]==='▧'?'Fotos':a[0]==='◈'?'Drive':a[0]==='▣'?'Play Store':'Music',x+56,y+60,9,650);
-      p.btns.push({id:'meta-app-'+i,x:ox+x*s,y:oy+y*s,w:112*s,h:78*s,fn:()=>{window.location.href=a[3];}});
+      p.btns.push({id:'meta-app-'+i,x:ox+x*s,y:oy+y*s,w:112*s,h:78*s,fn:()=>openAppScreen(a[0]==='▶'?'YouTube':a[0]==='G'?'Google':a[0]==='✉'?'Gmail':a[0]==='⌖'?'Google Maps':a[0]==='▧'?'Google Fotos':a[0]==='◈'?'Google Drive':a[0]==='▣'?'Play Store':'YouTube Music',a[3])});
     });
     box(579,343,92,27,9,'rgba(64,76,99,.95)',null);txt('Voltar',625,357,10,700);
     p.btns.push({id:'meta-app-back',x:ox+579*s,y:oy+343*s,w:92*s,h:27*s,fn:()=>{tab='jogos';tabsP.dirty=true;}});
@@ -451,7 +471,7 @@ function drawTabs(c,p){
       ['Mãos esqueleto',()=>{S.skeleton=!S.skeleton;save();tabsP.dirty=true;}],
       ['Modo mundo virtual',()=>{toggleVirtualWorld();tabsP.dirty=true;}],
       ['Recentralizar visão',()=>{recenter();}],
-      ['Abrir YouTube',()=>{window.location.href='https://www.youtube.com/';}]
+      ['Abrir YouTube',()=>openAppScreen('YouTube','https://www.youtube.com/')]
     ];
     opts.forEach((a,i)=>{
       const y=157+i*45;box(169,y,500,36,9,'rgba(48,55,68,.98)','rgba(255,255,255,.1)');
@@ -467,7 +487,7 @@ function drawTabs(c,p){
     {x:149,w:99,txt:'Jogos',ico:'🎮',id:'games',fn:()=>{tab='jogos';tabsP.dirty=true;},key:'jogos'},
     {x:257,w:94,txt:'Aplicativos',ico:'▦',id:'apps',fn:()=>openTab('biblioteca'),key:'biblioteca'},
     {x:361,w:107,txt:'Configurações',ico:'⚙',id:'settings',fn:()=>openTab('config'),key:'config'},
-    {x:477,w:99,txt:'Play Store',ico:'▶',id:'store',fn:()=>window.location.href='https://play.google.com/store/games',key:'store'},
+    {x:477,w:99,txt:'Play Store',ico:'▶',id:'store',fn:()=>openAppScreen('Play Store','https://play.google.com/store/games'),key:'store'},
     {x:585,w:95,txt:'Sair',ico:'⇥',id:'exit',fn:()=>{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});hideTabs();},key:'exit'}
   ];
   cards.forEach(a=>{
@@ -522,10 +542,10 @@ function drawTabs(c,p){
       else if(a[1]==='settings')openTab('config');
       else if(a[1]==='games')openTab('jogos');
       else if(a[1]==='all')openTab('biblioteca');
-      else if(a[1]==='video')window.location.href='https://www.youtube.com/';
-      else if(a[1]==='web')window.location.href='https://www.google.com/';
-      else if(a[1]==='gallery')window.location.href='https://photos.google.com/';
-      else if(a[1]==='store')window.location.href='https://play.google.com/store/games';
+      else if(a[1]==='video')openAppScreen('YouTube','https://www.youtube.com/');
+      else if(a[1]==='web')openAppScreen('Google','https://www.google.com/');
+      else if(a[1]==='gallery')openAppScreen('Google Fotos','https://photos.google.com/');
+      else if(a[1]==='store')openAppScreen('Play Store','https://play.google.com/store/games');
       else openTab('biblioteca');
     }});
   });
