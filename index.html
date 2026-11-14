@@ -389,43 +389,91 @@ if(navigator.getBattery){
     updateBattery();b.addEventListener('levelchange',updateBattery);b.addEventListener('chargingchange',updateBattery);
   }).catch(function(){});
 }
-// Usa diretamente a imagem original enviada ao repositório.
-const tabsReferenceImage=new Image();
-tabsReferenceImage.onload=function(){tabsP.dirty=true};
-tabsReferenceImage.onerror=function(){console.error('Não foi possível carregar IMG_2695.jpeg')};
-tabsReferenceImage.src='IMG_2695.jpeg';
-
+// Menu META BOX recriado como interface real, com elementos e botões interativos.
 function drawTabs(c,p){
   c.clearRect(0,0,p.pw,p.ph);
-  if(!tabsReferenceImage.complete||!tabsReferenceImage.naturalWidth){
-    c.fillStyle='#101722';c.fillRect(0,0,p.pw,p.ph);
-    c.fillStyle='#fff';c.textAlign='center';c.font='32px system-ui';
-    c.fillText('Carregando menu META BOX...',p.pw/2,p.ph/2);
-    return;
+  const s=Math.min(p.pw/828,p.ph/494),ox=(p.pw-828*s)/2,oy=(p.ph-494*s)/2;
+  c.save();c.translate(ox,oy);c.scale(s,s);
+  function box(x,y,w,h,r,fill,stroke){
+    rr(c,x,y,w,h,r);c.fillStyle=fill;c.fill();
+    if(stroke){c.strokeStyle=stroke;c.lineWidth=1.5;c.stroke()}
   }
-  // Mantém a proporção da imagem e não redesenha nem altera seus pixels.
-  const scale=Math.min(p.pw/tabsReferenceImage.naturalWidth,p.ph/tabsReferenceImage.naturalHeight);
-  const w=tabsReferenceImage.naturalWidth*scale,h=tabsReferenceImage.naturalHeight*scale;
-  const ox=(p.pw-w)/2,oy=(p.ph-h)/2;
-  c.drawImage(tabsReferenceImage,ox,oy,w,h);
+  function label(t,x,y,size=12,weight=600,color='#f7f9fc',align='center'){
+    c.font=weight+' '+size+'px system-ui,-apple-system,sans-serif';
+    c.fillStyle=color;c.textAlign=align;c.textBaseline='middle';c.fillText(t,x,y);
+  }
+  function glow(x,y,w,h,r){
+    c.save();c.shadowColor='#087dff';c.shadowBlur=17;
+    box(x,y,w,h,r,'rgba(0,86,210,.42)','#249dff');c.restore();
+  }
+  // Painel principal flutuante e translúcido.
+  c.save();c.shadowColor='rgba(0,0,0,.55)';c.shadowBlur=28;
+  box(142,43,545,337,19,'rgba(20,24,32,.96)','rgba(210,225,245,.16)');c.restore();
 
-  // Áreas invisíveis de interação posicionadas sobre os botões originais.
-  function hotspot(id,x,y,bw,bh,fn){
-    p.btns.push({id:id,x:ox+x*scale,y:oy+y*scale,w:bw*scale,h:bh*scale,fn:fn});
-  }
-  hotspot('image-games',145,88,103,79,function(){openTab('jogos')});
-  hotspot('image-apps',258,88,96,79,function(){openTab('biblioteca')});
-  hotspot('image-settings',361,87,108,80,function(){openTab('config')});
-  hotspot('image-store',480,87,98,80,function(){openTab('biblioteca')});
-  hotspot('image-exit',586,87,98,80,function(){hideTabs()});
-  hotspot('image-search',168,176,512,39,function(){openTab('biblioteca')});
-  hotspot('image-dock-games',352,333,40,42,function(){openTab('jogos')});
-  hotspot('image-dock-browser',396,333,40,42,function(){openTab('biblioteca')});
-  hotspot('image-dock-gallery',439,333,40,42,function(){openTab('biblioteca')});
-  hotspot('image-dock-settings',481,333,40,42,function(){openTab('config')});
-  hotspot('image-dock-store',522,333,40,42,function(){openTab('biblioteca')});
-  hotspot('image-dock-video',566,333,40,42,function(){openTab('biblioteca')});
-  hotspot('image-dock-all',618,333,42,42,function(){openTab('biblioteca')});
+  // Perfil, nome e indicadores do sistema.
+  c.beginPath();c.arc(171,66,12,0,Math.PI*2);c.fillStyle='#d34caa';c.fill();
+  label('M',171,66,12,800);label('META BOX  ⌄',192,66,11,650,'#f4f6fb','left');
+  label(new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),566,66,10,600,'#e6eaf0');
+  label('◉  89%  ▰',630,66,10,600,'#e6eaf0');
+
+  const cards=[
+    {x:150,txt:'Jogos',ico:'🎮',id:'games',fn:()=>openTab('jogos'),sel:true},
+    {x:258,txt:'Aplicativos',ico:'▦',id:'apps',fn:()=>openTab('biblioteca')},
+    {x:362,txt:'Configurações',ico:'⚙',id:'settings',fn:()=>openTab('config')},
+    {x:478,txt:'Play Store',ico:'▶',id:'store',fn:()=>openTab('biblioteca')},
+    {x:586,txt:'Sair',ico:'⇥',id:'exit',fn:()=>hideTabs()}
+  ];
+  cards.forEach(a=>{
+    if(a.sel)glow(a.x,90,94,76,12);else box(a.x,90,94,76,12,'rgba(48,55,68,.95)','rgba(255,255,255,.07)');
+    label(a.ico,a.x+47,119,27,700);
+    label(a.txt,a.x+47,148,11,650);
+    p.btns.push({id:'meta-'+a.id,x:ox+a.x*s,y:oy+90*s,w:94*s,h:76*s,fn:a.fn});
+  });
+
+  // Campo de pesquisa e ação.
+  box(165,174,416,39,12,'rgba(38,44,55,.98)','rgba(255,255,255,.10)');
+  label('⌕',183,194,22,400,'#e8edf5');
+  label('Pesquisar aplicativos e jogos...',200,194,10,400,'#c2c8d2','left');
+  box(588,174,86,39,11,'rgba(49,57,70,.98)','rgba(255,255,255,.08)');
+  label('Procurar',631,194,10,700);
+  p.btns.push({id:'meta-search',x:ox+165*s,y:oy+174*s,w:509*s,h:39*s,fn:()=>openTab('biblioteca')});
+
+  label('Recomendados',168,232,11,700,'#f7f9fc','left');
+  label('Ver mais  ›',669,223,9,600,'#d8dee8','right');
+  const rec=[
+    ['⚔','BEAT SABER','#173c6e'],['🦍','Gorilla Tag','#31543d'],['▣','Rec Room','#ef8438'],
+    ['👾','Among Us VR','#344d9a'],['🎯','Population: ONE','#35445b'],['▦','Minecraft VR','#527d3e']
+  ];
+  rec.forEach((a,i)=>{
+    const x=171+i*84,y=241;
+    box(x,y,76,69,9,a[2],'rgba(255,255,255,.12)');
+    label(a[0],x+38,y+28,26,700);
+    label(a[1],x+38,y+59,7,700);
+    p.btns.push({id:'meta-recommended-'+i,x:ox+x*s,y:oy+y*s,w:76*s,h:69*s,fn:()=>openTab('jogos')});
+  });
+
+  // Barra universal inferior separada do painel.
+  c.save();c.shadowColor='rgba(0,0,0,.48)';c.shadowBlur=20;
+  box(168,333,491,48,25,'rgba(27,32,42,.98)','rgba(255,255,255,.15)');c.restore();
+  const dock=[
+    ['👤','profile','#466c70'],['◉','notify','#343b49'],['🎮','games','#235cc0'],
+    ['◒','web','#8b36cf'],['▧','gallery','#14948f'],['⚙','settings','#606876'],
+    ['▣','store','#df347d'],['▶','video','#e32132'],['⠿','all','#303946']
+  ];
+  dock.forEach((a,i)=>{
+    const x=195+i*54;
+    if(i>1){box(x-16,338,32,32,9,a[2],null);label(a[0],x,354,17,700)}
+    else label(a[0],x,355,18,700);
+    p.btns.push({id:'meta-dock-'+a[1],x:ox+(x-21)*s,y:oy+334*s,w:42*s,h:42*s,fn:()=>{
+      if(a[1]==='profile')recenter();
+      else if(a[1]==='notify')beep(880,.1,.1);
+      else if(a[1]==='settings')openTab('config');
+      else if(a[1]==='games')openTab('jogos');
+      else openTab('biblioteca');
+    }});
+  });
+  label('━',414,390,30,700,'#f4f5f7');
+  c.restore();
 }
 tabsP.draw=drawTabs;
 function placeInFront(p,dist,y){
