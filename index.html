@@ -421,8 +421,8 @@ function drawTabs(c,p){
     {x:149,w:99,txt:'Jogos',ico:'🎮',id:'games',fn:()=>{tab='jogos';tabsP.dirty=true;},key:'jogos'},
     {x:257,w:94,txt:'Aplicativos',ico:'▦',id:'apps',fn:()=>openTab('biblioteca'),key:'biblioteca'},
     {x:361,w:107,txt:'Configurações',ico:'⚙',id:'settings',fn:()=>openTab('config'),key:'config'},
-    {x:477,w:99,txt:'Play Store',ico:'▶',id:'store',fn:()=>{tab='biblioteca';tabsP.dirty=true;},key:'store'},
-    {x:585,w:95,txt:'Sair',ico:'⇥',id:'exit',fn:()=>hideTabs(),key:'exit'}
+    {x:477,w:99,txt:'Play Store',ico:'▶',id:'store',fn:()=>window.open('https://play.google.com/store/games','_blank','noopener'),key:'store'},
+    {x:585,w:95,txt:'Sair',ico:'⇥',id:'exit',fn:()=>{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});hideTabs();},key:'exit'}
   ];
   cards.forEach(a=>{
     const selected=(tab===a.key)||(a.key==='store'&&tab==='loja');
