@@ -48,6 +48,8 @@ const $=id=>document.getElementById(id);
 const V3=THREE.Vector3;
 const S={ipd:0.064,k1:0.22,sixdof:false,skeleton:true,sound:true,split:true,camFov:50,hiscore:0};
 try{Object.assign(S,JSON.parse(localStorage.getItem('vbw')||'{}'))}catch(e){}
+// No navegador móvel, renderizar uma única vista evita a duplicação lado a lado.
+S.split=false;
 const save=()=>{try{localStorage.setItem('vbw',JSON.stringify(S))}catch(e){}};
 
 /* ---------- áudio ---------- */
@@ -875,7 +877,7 @@ function frame(t){
   if(state==='blocks')updateBlocks(dt);
   tapped=false;
   statT+=dt;if(statT>0.6){statT=0;if(state==='menu')menuP.dirty=true}
-  if(tabsP.mesh.visible){placeInFront(tabsP,1.12,rig.position.y-0.08);tabsP.dirty=true;}
+  // Painel ancorado no mundo: não acompanha a cabeça. Só aparece no local onde foi aberto.
   [menuP,hudP,endP,tabsP].forEach(function(p){if(p.dirty&&p.mesh.visible)p.redraw()});
   render();
 }
