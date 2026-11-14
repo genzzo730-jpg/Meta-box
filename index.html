@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#05060f">
-<title>VR BOX WORLD</title>
+<title>META BOX</title>
 <style>
 html,body{margin:0;height:100%;background:#05060f;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#fff;touch-action:none;-webkit-user-select:none;user-select:none}
 canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
@@ -25,7 +25,7 @@ video#cam{position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-eve
 <canvas id="c"></canvas>
 <video id="cam" playsinline muted autoplay></video>
 <div id="intro">
-  <h1><span>VR BOX WORLD</span></h1>
+  <h1><span>META BOX</span></h1>
   <div class="by">por emjoythemr</div>
   <ul>
     <li>Abra esta página em <b>HTTPS</b> no Chrome (Android) ou Safari (iPhone). A câmera só funciona assim.</li>
@@ -287,7 +287,7 @@ const GAMES=[
 const menuP=new Panel(1.8,1.125,1280,800);menuP.mesh.position.set(0,1.3,-1.75);
 const hudP=new Panel(0.9,0.3,900,300);hudP.mesh.position.set(-0.95,1.45,-1.25);hudP.mesh.rotation.y=0.65;
 const endP=new Panel(1.0,0.6,800,480);endP.mesh.position.set(0,1.35,-1.1);
-const tabsP=new Panel(2.55,1.435,1920,1080);tabsP.mesh.visible=false;
+const tabsP=new Panel(2.55,1.608,1920,1080);tabsP.mesh.visible=false;
 scene.add(menuP.mesh,hudP.mesh,endP.mesh,tabsP.mesh);
 
 function toggleBtn(p,c,id,y,label,key,hint){
@@ -392,87 +392,95 @@ if(navigator.getBattery){
 // Menu META BOX recriado como interface real, com elementos e botões interativos.
 function drawTabs(c,p){
   c.clearRect(0,0,p.pw,p.ph);
-  const s=Math.min(p.pw/828,p.ph/494),ox=(p.pw-828*s)/2,oy=(p.ph-494*s)/2;
+  const W=828,H=522,s=Math.min(p.pw/W,p.ph/H),ox=(p.pw-W*s)/2,oy=(p.ph-H*s)/2;
   c.save();c.translate(ox,oy);c.scale(s,s);
   function box(x,y,w,h,r,fill,stroke){
-    rr(c,x,y,w,h,r);c.fillStyle=fill;c.fill();
-    if(stroke){c.strokeStyle=stroke;c.lineWidth=1.5;c.stroke()}
+    rr(c,x,y,x+w,y+h,r);c.fillStyle=fill;c.fill();
+    if(stroke){c.strokeStyle=stroke;c.lineWidth=1.2;c.stroke()}
   }
-  function label(t,x,y,size=12,weight=600,color='#f7f9fc',align='center'){
+  function txt(t,x,y,size=12,weight=600,color='#f7f9fc',align='center'){
     c.font=weight+' '+size+'px system-ui,-apple-system,sans-serif';
     c.fillStyle=color;c.textAlign=align;c.textBaseline='middle';c.fillText(t,x,y);
   }
   function glow(x,y,w,h,r){
-    c.save();c.shadowColor='#087dff';c.shadowBlur=17;
-    box(x,y,w,h,r,'rgba(0,86,210,.42)','#249dff');c.restore();
+    c.save();c.shadowColor='#087dff';c.shadowBlur=19;
+    box(x,y,w,h,r,'rgba(0,76,190,.42)','#168dff');c.restore();
   }
-  // Painel principal flutuante e translúcido.
-  c.save();c.shadowColor='rgba(0,0,0,.55)';c.shadowBlur=28;
-  box(142,43,545,337,19,'rgba(20,24,32,.96)','rgba(210,225,245,.16)');c.restore();
+  // Janela do sistema: apenas o painel é desenhado; a câmera permanece como fundo vivo.
+  c.save();c.shadowColor='rgba(0,0,0,.6)';c.shadowBlur=24;
+  box(141,43,547,337,20,'rgba(25,29,38,.97)','rgba(190,205,225,.18)');c.restore();
 
-  // Perfil, nome e indicadores do sistema.
-  c.beginPath();c.arc(171,66,12,0,Math.PI*2);c.fillStyle='#d34caa';c.fill();
-  label('M',171,66,12,800);label('META BOX  ⌄',192,66,11,650,'#f4f6fb','left');
-  label(new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),566,66,10,600,'#e6eaf0');
-  label('◉  89%  ▰',630,66,10,600,'#e6eaf0');
+  // Cabeçalho e status.
+  const avatar=c.createLinearGradient(157,51,181,76);avatar.addColorStop(0,'#f05cb9');avatar.addColorStop(1,'#6a42d9');
+  c.beginPath();c.arc(171,65,12,0,Math.PI*2);c.fillStyle=avatar;c.fill();
+  txt('●',171,65,10,800,'#fff');txt('META BOX  ⌄',191,65,11,700,'#f4f6fb','left');
+  txt(new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),579,65,10,600,'#e6eaf0');
+  txt('◉  89%  ▰',645,65,10,600,'#e6eaf0');
 
   const cards=[
-    {x:150,txt:'Jogos',ico:'🎮',id:'games',fn:()=>openTab('jogos'),sel:true},
-    {x:258,txt:'Aplicativos',ico:'▦',id:'apps',fn:()=>openTab('biblioteca')},
-    {x:362,txt:'Configurações',ico:'⚙',id:'settings',fn:()=>openTab('config')},
-    {x:478,txt:'Play Store',ico:'▶',id:'store',fn:()=>openTab('biblioteca')},
-    {x:586,txt:'Sair',ico:'⇥',id:'exit',fn:()=>hideTabs()}
+    {x:149,w:99,txt:'Jogos',ico:'🎮',id:'games',fn:()=>openTab('jogos'),key:'jogos'},
+    {x:257,w:94,txt:'Aplicativos',ico:'▦',id:'apps',fn:()=>openTab('biblioteca'),key:'biblioteca'},
+    {x:361,w:107,txt:'Configurações',ico:'⚙',id:'settings',fn:()=>openTab('config'),key:'config'},
+    {x:477,w:99,txt:'Play Store',ico:'▶',id:'store',fn:()=>openTab('biblioteca'),key:'store'},
+    {x:585,w:95,txt:'Sair',ico:'⇥',id:'exit',fn:()=>hideTabs(),key:'exit'}
   ];
   cards.forEach(a=>{
-    if(a.sel)glow(a.x,90,94,76,12);else box(a.x,90,94,76,12,'rgba(48,55,68,.95)','rgba(255,255,255,.07)');
-    label(a.ico,a.x+47,119,27,700);
-    label(a.txt,a.x+47,148,11,650);
-    p.btns.push({id:'meta-'+a.id,x:ox+a.x*s,y:oy+90*s,w:94*s,h:76*s,fn:a.fn});
+    const selected=(tab===a.key)||(a.key==='store'&&tab==='loja');
+    if(selected)glow(a.x,88,a.w,76,12);
+    else box(a.x,88,a.w,76,12,'rgba(48,55,68,.96)','rgba(255,255,255,.08)');
+    txt(a.ico,a.x+a.w/2,116,27,700);
+    txt(a.txt,a.x+a.w/2,147,11,650);
+    p.btns.push({id:'meta-'+a.id,x:ox+a.x*s,y:oy+88*s,w:a.w*s,h:76*s,fn:a.fn});
   });
 
-  // Campo de pesquisa e ação.
-  box(165,174,416,39,12,'rgba(38,44,55,.98)','rgba(255,255,255,.10)');
-  label('⌕',183,194,22,400,'#e8edf5');
-  label('Pesquisar aplicativos e jogos...',200,194,10,400,'#c2c8d2','left');
-  box(588,174,86,39,11,'rgba(49,57,70,.98)','rgba(255,255,255,.08)');
-  label('Procurar',631,194,10,700);
-  p.btns.push({id:'meta-search',x:ox+165*s,y:oy+174*s,w:509*s,h:39*s,fn:()=>openTab('biblioteca')});
+  // Pesquisa.
+  box(164,169,417,39,12,'rgba(39,45,56,.98)','rgba(255,255,255,.10)');
+  txt('⌕',184,189,22,400,'#e8edf5');
+  txt('Pesquisar aplicativos e jogos...',200,189,10,400,'#c2c8d2','left');
+  box(588,169,85,39,11,'rgba(49,57,70,.98)','rgba(255,255,255,.08)');
+  txt('Procurar',630,189,10,700);
+  p.btns.push({id:'meta-search',x:ox+164*s,y:oy+169*s,w:509*s,h:39*s,fn:()=>openTab('biblioteca')});
 
-  label('Recomendados',168,232,11,700,'#f7f9fc','left');
-  label('Ver mais  ›',669,223,9,600,'#d8dee8','right');
+  txt('Recomendados',168,225,11,700,'#f7f9fc','left');
+  txt('Ver mais  ›',669,216,9,600,'#d8dee8','right');
   const rec=[
-    ['⚔','BEAT SABER','#173c6e'],['🦍','Gorilla Tag','#31543d'],['▣','Rec Room','#ef8438'],
+    ['BEAT\\nSABER','BEAT SABER','#102d55'],['🦍','Gorilla Tag','#31543d'],['▣','Rec Room','#ef8438'],
     ['👾','Among Us VR','#344d9a'],['🎯','Population: ONE','#35445b'],['▦','Minecraft VR','#527d3e']
   ];
   rec.forEach((a,i)=>{
-    const x=171+i*84,y=241;
-    box(x,y,76,69,9,a[2],'rgba(255,255,255,.12)');
-    label(a[0],x+38,y+28,26,700);
-    label(a[1],x+38,y+59,7,700);
-    p.btns.push({id:'meta-recommended-'+i,x:ox+x*s,y:oy+y*s,w:76*s,h:69*s,fn:()=>openTab('jogos')});
+    const x=171+i*83,y=231,w=75,h=69;
+    const gr=c.createLinearGradient(x,y,x+w,y+h);gr.addColorStop(0,a[2]);gr.addColorStop(1,'#17202d');
+    box(x,y,w,h,9,gr,'rgba(255,255,255,.13)');
+    if(i===0){txt('BEAT',x+37,y+28,14,800,'#ff4d8e');txt('SABER',x+37,y+43,14,800,'#45d8ff')}
+    else txt(a[0],x+37,y+29,26,700);
+    txt(a[1],x+37,y+60,7,700);
+    p.btns.push({id:'meta-recommended-'+i,x:ox+x*s,y:oy+y*s,w:w*s,h:h*s,fn:()=>openTab('jogos')});
   });
 
-  // Barra universal inferior separada do painel.
-  c.save();c.shadowColor='rgba(0,0,0,.48)';c.shadowBlur=20;
-  box(168,333,491,48,25,'rgba(27,32,42,.98)','rgba(255,255,255,.15)');c.restore();
+  // Dock inferior no formato da referência.
+  c.save();c.shadowColor='rgba(0,0,0,.5)';c.shadowBlur=20;
+  box(167,309,493,49,25,'rgba(28,33,43,.98)','rgba(255,255,255,.16)');c.restore();
   const dock=[
-    ['👤','profile','#466c70'],['◉','notify','#343b49'],['🎮','games','#235cc0'],
+    ['👤','profile','#4d6b73'],['◉','notify','#343b49'],['◉','games','#235cc0'],
     ['◒','web','#8b36cf'],['▧','gallery','#14948f'],['⚙','settings','#606876'],
     ['▣','store','#df347d'],['▶','video','#e32132'],['⠿','all','#303946']
   ];
   dock.forEach((a,i)=>{
-    const x=195+i*54;
-    if(i>1){box(x-16,338,32,32,9,a[2],null);label(a[0],x,354,17,700)}
-    else label(a[0],x,355,18,700);
-    p.btns.push({id:'meta-dock-'+a[1],x:ox+(x-21)*s,y:oy+334*s,w:42*s,h:42*s,fn:()=>{
+    const x=198+i*53;
+    if(i===0){c.beginPath();c.arc(x,333,13,0,Math.PI*2);c.fillStyle='#778b91';c.fill();txt('●',x,333,13,700,'#d9e0e2')}
+    else if(i===1){txt('14:17  ◉  ▰',x+7,333,9,600,'#e5e9f0')}
+    else{box(x-16,317,32,32,9,a[2],null);txt(a[0],x,333,18,700)}
+    p.btns.push({id:'meta-dock-'+a[1],x:ox+(x-20)*s,y:oy+313*s,w:40*s,h:40*s,fn:()=>{
       if(a[1]==='profile')recenter();
       else if(a[1]==='notify')beep(880,.1,.1);
       else if(a[1]==='settings')openTab('config');
       else if(a[1]==='games')openTab('jogos');
+      else if(a[1]==='all')openTab('biblioteca');
       else openTab('biblioteca');
     }});
   });
-  label('━',414,390,30,700,'#f4f5f7');
+  // Indicador de gesto/barra de início.
+  box(381,367,85,3,2,'#f5f6f8',null);
   c.restore();
 }
 tabsP.draw=drawTabs;
