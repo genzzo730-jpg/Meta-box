@@ -418,10 +418,10 @@ function drawTabs(c,p){
   txt('◉  89%  ▰',645,65,10,600,'#e6eaf0');
 
   const cards=[
-    {x:149,w:99,txt:'Jogos',ico:'🎮',id:'games',fn:()=>openTab('jogos'),key:'jogos'},
+    {x:149,w:99,txt:'Jogos',ico:'🎮',id:'games',fn:()=>{tab='jogos';tabsP.dirty=true;},key:'jogos'},
     {x:257,w:94,txt:'Aplicativos',ico:'▦',id:'apps',fn:()=>openTab('biblioteca'),key:'biblioteca'},
     {x:361,w:107,txt:'Configurações',ico:'⚙',id:'settings',fn:()=>openTab('config'),key:'config'},
-    {x:477,w:99,txt:'Play Store',ico:'▶',id:'store',fn:()=>openTab('biblioteca'),key:'store'},
+    {x:477,w:99,txt:'Play Store',ico:'▶',id:'store',fn:()=>{tab='biblioteca';tabsP.dirty=true;},key:'store'},
     {x:585,w:95,txt:'Sair',ico:'⇥',id:'exit',fn:()=>hideTabs(),key:'exit'}
   ];
   cards.forEach(a=>{
@@ -444,17 +444,17 @@ function drawTabs(c,p){
   txt('Recomendados',168,225,11,700,'#f7f9fc','left');
   txt('Ver mais  ›',669,216,9,600,'#d8dee8','right');
   const rec=[
-    ['BEAT\\nSABER','BEAT SABER','#102d55'],['🦍','Gorilla Tag','#31543d'],['▣','Rec Room','#ef8438'],
-    ['👾','Among Us VR','#344d9a'],['🎯','Population: ONE','#35445b'],['▦','Minecraft VR','#527d3e']
+    ['🫧','Estoura Orbes','#3159a5','orbs'],['🧱','Construtor Blocos','#a94c35','blocks'],
+    ['＋','Em breve','#34404f',null],['＋','Em breve','#34404f',null],
+    ['＋','Em breve','#34404f',null],['＋','Em breve','#34404f',null]
   ];
   rec.forEach((a,i)=>{
     const x=171+i*83,y=231,w=75,h=69;
     const gr=c.createLinearGradient(x,y,x+w,y+h);gr.addColorStop(0,a[2]);gr.addColorStop(1,'#17202d');
     box(x,y,w,h,9,gr,'rgba(255,255,255,.13)');
-    if(i===0){txt('BEAT',x+37,y+28,14,800,'#ff4d8e');txt('SABER',x+37,y+43,14,800,'#45d8ff')}
-    else txt(a[0],x+37,y+29,26,700);
-    txt(a[1],x+37,y+60,7,700);
-    p.btns.push({id:'meta-recommended-'+i,x:ox+x*s,y:oy+y*s,w:w*s,h:h*s,fn:()=>openTab('jogos')});
+    txt(a[0],x+37,y+28,25,700);
+    txt(a[1],x+37,y+59,7,700);
+    if(a[3])p.btns.push({id:'meta-recommended-'+i,x:ox+x*s,y:oy+y*s,w:w*s,h:h*s,fn:()=>startGame(a[3])});
   });
 
   // Dock inferior no formato da referência.
@@ -501,11 +501,11 @@ function toggleVirtualWorld(){
   hands.forEach(function(h){h.g.visible=virtualWorld;});
   beep(virtualWorld?760:480,0.18,0.14);buzz(35);
 }
-function openTab(t){tab=t;hideTabs();setState('menu');placeInFront(menuP,1.75,rig.position.y+0.1);menuP.dirty=true}
+function openTab(t){tab=t;menuP.mesh.visible=false;tabsP.mesh.visible=true;tabsP.dirty=true;}
 
 function setState(s){
   state=s;
-  menuP.mesh.visible=s==='menu';hudP.mesh.visible=s!=='menu';endP.mesh.visible=false;tabsP.mesh.visible=false;
+  menuP.mesh.visible=false;hudP.mesh.visible=s!=='menu';endP.mesh.visible=false;tabsP.mesh.visible=false;
   orbsG.visible=s==='orbs';blocksG.visible=s==='blocks';
   if(s!=='orbs')orb.run=false;
   menuP.dirty=hudP.dirty=true;
