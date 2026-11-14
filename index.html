@@ -419,11 +419,55 @@ function drawTabs(c,p){
   txt(new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),579,65,10,600,'#e6eaf0');
   txt('◉  89%  ▰',645,65,10,600,'#e6eaf0');
 
+  if(tab==='biblioteca'){
+    txt('Aplicativos',170,101,19,750,'#ffffff','left');
+    txt('Toque em um aplicativo para abrir o serviço real.',170,126,10,450,'#c5ccd8','left');
+    const apps=[
+      ['▶','YouTube','#e32636','https://www.youtube.com/'],
+      ['G','Google','#4285f4','https://www.google.com/'],
+      ['✉','Gmail','#d94b3d','https://mail.google.com/'],
+      ['⌖','Maps','#239b78','https://maps.google.com/'],
+      ['▧','Fotos','#d7a62b','https://photos.google.com/'],
+      ['◈','Drive','#299c68','https://drive.google.com/'],
+      ['▣','Play Store','#2586d9','https://play.google.com/store/games'],
+      ['♪','YouTube Music','#e34a4a','https://music.youtube.com/']
+    ];
+    apps.forEach((a,i)=>{
+      const col=i%4,row=Math.floor(i/4),x=166+col*126,y=151+row*91;
+      box(x,y,112,78,12,'rgba(48,55,68,.98)','rgba(255,255,255,.12)');
+      box(x+38,y+8,36,36,10,a[2],null);
+      txt(a[0],x+56,y+26,22,800,'#fff');
+      txt(a[0]==='▶'?'YouTube':a[0]==='G'?'Google':a[0]==='✉'?'Gmail':a[0]==='⌖'?'Maps':a[0]==='▧'?'Fotos':a[0]==='◈'?'Drive':a[0]==='▣'?'Play Store':'Music',x+56,y+60,9,650);
+      p.btns.push({id:'meta-app-'+i,x:ox+x*s,y:oy+y*s,w:112*s,h:78*s,fn:()=>{window.location.href=a[3];}});
+    });
+    box(579,343,92,27,9,'rgba(64,76,99,.95)',null);txt('Voltar',625,357,10,700);
+    p.btns.push({id:'meta-app-back',x:ox+579*s,y:oy+343*s,w:92*s,h:27*s,fn:()=>{tab='jogos';tabsP.dirty=true;}});
+    c.restore();return;
+  }
+  if(tab==='config'){
+    txt('Configurações',170,108,19,750,'#ffffff','left');
+    txt('Ajustes do META BOX',170,132,10,450,'#c5ccd8','left');
+    const opts=[
+      ['Mãos esqueleto',()=>{S.skeleton=!S.skeleton;save();tabsP.dirty=true;}],
+      ['Modo mundo virtual',()=>{toggleVirtualWorld();tabsP.dirty=true;}],
+      ['Recentralizar visão',()=>{recenter();}],
+      ['Abrir YouTube',()=>{window.location.href='https://www.youtube.com/';}]
+    ];
+    opts.forEach((a,i)=>{
+      const y=157+i*45;box(169,y,500,36,9,'rgba(48,55,68,.98)','rgba(255,255,255,.1)');
+      txt(a[0],186,y+18,11,600,'#fff','left');
+      txt('›',650,y+18,18,700,'#dce4f0');
+      p.btns.push({id:'meta-config-'+i,x:ox+169*s,y:oy+y*s,w:500*s,h:36*s,fn:a[1]});
+    });
+    box(579,343,92,27,9,'rgba(64,76,99,.95)',null);txt('Voltar',625,357,10,700);
+    p.btns.push({id:'meta-config-back',x:ox+579*s,y:oy+343*s,w:92*s,h:27*s,fn:()=>{tab='jogos';tabsP.dirty=true;}});
+    c.restore();return;
+  }
   const cards=[
     {x:149,w:99,txt:'Jogos',ico:'🎮',id:'games',fn:()=>{tab='jogos';tabsP.dirty=true;},key:'jogos'},
     {x:257,w:94,txt:'Aplicativos',ico:'▦',id:'apps',fn:()=>openTab('biblioteca'),key:'biblioteca'},
     {x:361,w:107,txt:'Configurações',ico:'⚙',id:'settings',fn:()=>openTab('config'),key:'config'},
-    {x:477,w:99,txt:'Play Store',ico:'▶',id:'store',fn:()=>window.open('https://play.google.com/store/games','_blank','noopener'),key:'store'},
+    {x:477,w:99,txt:'Play Store',ico:'▶',id:'store',fn:()=>window.location.href='https://play.google.com/store/games',key:'store'},
     {x:585,w:95,txt:'Sair',ico:'⇥',id:'exit',fn:()=>{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});hideTabs();},key:'exit'}
   ];
   cards.forEach(a=>{
@@ -478,9 +522,10 @@ function drawTabs(c,p){
       else if(a[1]==='settings')openTab('config');
       else if(a[1]==='games')openTab('jogos');
       else if(a[1]==='all')openTab('biblioteca');
-      else if(a[1]==='video')window.open('https://www.youtube.com/','_blank','noopener');
-      else if(a[1]==='web')window.open('https://www.google.com/','_blank','noopener');
-      else if(a[1]==='store')window.open('https://play.google.com/store/games','_blank','noopener');
+      else if(a[1]==='video')window.location.href='https://www.youtube.com/';
+      else if(a[1]==='web')window.location.href='https://www.google.com/';
+      else if(a[1]==='gallery')window.location.href='https://photos.google.com/';
+      else if(a[1]==='store')window.location.href='https://play.google.com/store/games';
       else openTab('biblioteca');
     }});
   });
