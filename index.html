@@ -389,86 +389,43 @@ if(navigator.getBattery){
     updateBattery();b.addEventListener('levelchange',updateBattery);b.addEventListener('chargingchange',updateBattery);
   }).catch(function(){});
 }
+// Usa diretamente a imagem original enviada ao repositório.
+const tabsReferenceImage=new Image();
+tabsReferenceImage.onload=function(){tabsP.dirty=true};
+tabsReferenceImage.onerror=function(){console.error('Não foi possível carregar IMG_2695.jpeg')};
+tabsReferenceImage.src='IMG_2695.jpeg';
+
 function drawTabs(c,p){
-  // Painel META BOX inspirado na referência visual aprovada.
   c.clearRect(0,0,p.pw,p.ph);
-  c.save();
-  c.shadowColor='rgba(0,0,0,.48)';c.shadowBlur=34;
-  rr(c,320,28,1280,625,48);
-  c.fillStyle='rgba(18,23,31,.94)';c.fill();
-  c.strokeStyle='rgba(220,235,255,.15)';c.lineWidth=3;c.stroke();
-  c.restore();
+  if(!tabsReferenceImage.complete||!tabsReferenceImage.naturalWidth){
+    c.fillStyle='#101722';c.fillRect(0,0,p.pw,p.ph);
+    c.fillStyle='#fff';c.textAlign='center';c.font='32px system-ui';
+    c.fillText('Carregando menu META BOX...',p.pw/2,p.ph/2);
+    return;
+  }
+  // Mantém a proporção da imagem e não redesenha nem altera seus pixels.
+  const scale=Math.min(p.pw/tabsReferenceImage.naturalWidth,p.ph/tabsReferenceImage.naturalHeight);
+  const w=tabsReferenceImage.naturalWidth*scale,h=tabsReferenceImage.naturalHeight*scale;
+  const ox=(p.pw-w)/2,oy=(p.ph-h)/2;
+  c.drawImage(tabsReferenceImage,ox,oy,w,h);
 
-  // Cabeçalho e estado do sistema.
-  c.textBaseline='middle';c.textAlign='left';
-  c.fillStyle='#fff';c.font='700 34px system-ui';c.fillText('◉  META BOX  ⌄',375,82);
-  c.textAlign='right';c.font='600 27px system-ui';
-  c.fillText(new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'   ◉   ▰ '+batteryText,1540,82);
-
-  // Atalhos principais.
-  const main=[
-    ['🎮','Jogos','jogos'],['▦','Aplicativos','biblioteca'],['⚙','Configurações','config'],
-    ['▶','Play Store','biblioteca'],['⇥','Sair','exit']
-  ];
-  main.forEach(function(a,i){
-    const x=350+i*245,y=125,w=225,h=155,active=i===0;
-    rr(c,x,y,w,h,28);
-    c.fillStyle=active?'rgba(0,76,174,.72)':'rgba(48,57,70,.82)';c.fill();
-    c.strokeStyle=active?'#20aaff':'rgba(190,210,235,.12)';c.lineWidth=active?5:2;c.stroke();
-    if(active){c.save();c.shadowColor='#078dff';c.shadowBlur=18;c.strokeStyle='rgba(50,170,255,.75)';c.stroke();c.restore()}
-    c.textAlign='center';c.fillStyle='#fff';c.font='62px system-ui';c.fillText(a[0],x+w/2,y+65);
-    c.font='700 25px system-ui';c.fillText(a[1],x+w/2,y+125);
-    p.btns.push({id:'main-'+i,x:x,y:y,w:w,h:h,fn:function(){if(a[2]==='exit')hideTabs();else openTab(a[2])}});
-  });
-
-  // Pesquisa.
-  rr(c,365,300,950,85,30);c.fillStyle='rgba(39,48,60,.92)';c.fill();
-  c.strokeStyle='rgba(190,210,230,.35)';c.lineWidth=2;c.stroke();
-  c.textAlign='left';c.fillStyle='#dce4ed';c.font='31px system-ui';c.fillText('⌕  Pesquisar aplicativos e jogos...',400,344);
-  rr(c,1330,300,225,85,28);c.fillStyle='rgba(52,61,73,.94)';c.fill();
-  c.textAlign='center';c.fillStyle='#fff';c.font='700 27px system-ui';c.fillText('Procurar',1442,344);
-  p.btns.push({id:'search',x:365,y:300,w:1190,h:85,fn:function(){openTab('biblioteca')}});
-
-  // Recomendados: cartões visuais com miniaturas coloridas.
-  c.textAlign='left';c.fillStyle='#fff';c.font='700 27px system-ui';c.fillText('Recomendados',370,425);
-  c.textAlign='right';c.font='600 20px system-ui';c.fillStyle='#dce7f3';c.fillText('Ver mais  ›',1540,425);
-  const rec=[
-    ['⚔','Beat Saber','#14294b'],['🐵','Gorilla Tag','#31533e'],['▣','Rec Room','#e98537'],
-    ['🚀','Among Us VR','#293b91'],['🎯','Population: ONE','#34465e'],['▦','Minecraft VR','#537d39']
-  ];
-  rec.forEach(function(a,i){
-    const x=365+i*198,y=452,w=180,h=155;
-    rr(c,x,y,w,h,20);c.fillStyle=a[2];c.fill();
-    c.strokeStyle='rgba(220,235,255,.13)';c.lineWidth=2;c.stroke();
-    c.textAlign='center';c.fillStyle='#fff';c.font='62px system-ui';c.fillText(a[0],x+w/2,y+63);
-    c.font='600 19px system-ui';c.fillText(a[1],x+w/2,y+130);
-    p.btns.push({id:'recommended-'+i,x:x,y:y,w:w,h:h,fn:function(){openTab('jogos')}});
-  });
-
-  // Dock inferior flutuante, inspirado na barra universal do Quest.
-  c.save();c.shadowColor='rgba(0,0,0,.45)';c.shadowBlur=28;
-  rr(c,335,700,1250,150,75);c.fillStyle='rgba(24,30,39,.96)';c.fill();
-  c.strokeStyle='rgba(220,235,245,.18)';c.lineWidth=3;c.stroke();c.restore();
-  const dock=[
-    ['👤','profile','#287c70'],['◉','notify','#303946'],['🎮','games','#1761c6'],
-    ['◒','web','#7738c8'],['▧','photos','#168b88'],['⚙','settings','#59616e'],
-    ['▣','store','#df347c'],['▶','video','#d91e32'],['⠿','all','#303946']
-  ];
-  dock.forEach(function(a,i){
-    const x=410+i*137;
-    rr(c,x-42,722,84,84,22);c.fillStyle=a[2];c.fill();
-    c.textAlign='center';c.fillStyle='#fff';c.font='43px system-ui';c.fillText(a[0],x,765);
-    p.btns.push({id:'dock-'+a[1],x:x-52,y:712,w:104,h:105,fn:function(){
-      if(a[1]==='profile')recenter();
-      else if(a[1]==='notify')beep(880,.1,.1);
-      else if(a[1]==='settings')openTab('config');
-      else if(a[1]==='games')openTab('jogos');
-      else openTab('biblioteca');
-    }});
-  });
-  c.fillStyle='rgba(255,255,255,.88)';c.textAlign='center';c.font='19px system-ui';
-  c.fillRect(875,875,170,5);
-  c.fillText('Faça pinça para selecionar',960,915);
+  // Áreas invisíveis de interação posicionadas sobre os botões originais.
+  function hotspot(id,x,y,bw,bh,fn){
+    p.btns.push({id:id,x:ox+x*scale,y:oy+y*scale,w:bw*scale,h:bh*scale,fn:fn});
+  }
+  hotspot('image-games',145,88,103,79,function(){openTab('jogos')});
+  hotspot('image-apps',258,88,96,79,function(){openTab('biblioteca')});
+  hotspot('image-settings',361,87,108,80,function(){openTab('config')});
+  hotspot('image-store',480,87,98,80,function(){openTab('biblioteca')});
+  hotspot('image-exit',586,87,98,80,function(){hideTabs()});
+  hotspot('image-search',168,176,512,39,function(){openTab('biblioteca')});
+  hotspot('image-dock-games',352,333,40,42,function(){openTab('jogos')});
+  hotspot('image-dock-browser',396,333,40,42,function(){openTab('biblioteca')});
+  hotspot('image-dock-gallery',439,333,40,42,function(){openTab('biblioteca')});
+  hotspot('image-dock-settings',481,333,40,42,function(){openTab('config')});
+  hotspot('image-dock-store',522,333,40,42,function(){openTab('biblioteca')});
+  hotspot('image-dock-video',566,333,40,42,function(){openTab('biblioteca')});
+  hotspot('image-dock-all',618,333,42,42,function(){openTab('biblioteca')});
 }
 tabsP.draw=drawTabs;
 function placeInFront(p,dist,y){
