@@ -476,6 +476,9 @@ function drawTabs(c,p){
       else if(a[1]==='settings')openTab('config');
       else if(a[1]==='games')openTab('jogos');
       else if(a[1]==='all')openTab('biblioteca');
+      else if(a[1]==='video')window.open('https://www.youtube.com/','_blank','noopener');
+      else if(a[1]==='web')window.open('https://www.google.com/','_blank','noopener');
+      else if(a[1]==='store')window.open('https://play.google.com/store/games','_blank','noopener');
       else openTab('biblioteca');
     }});
   });
@@ -501,11 +504,17 @@ function toggleVirtualWorld(){
   hands.forEach(function(h){h.g.visible=virtualWorld;});
   beep(virtualWorld?760:480,0.18,0.14);buzz(35);
 }
-function openTab(t){tab=t;menuP.mesh.visible=false;tabsP.mesh.visible=true;tabsP.dirty=true;}
+function openTab(t){tab=t;state='menu';menuP.mesh.visible=false;hudP.mesh.visible=false;tabsP.mesh.visible=true;placeInFront(tabsP,1.12,rig.position.y-0.08);tabsP.dirty=true;}
 
 function setState(s){
   state=s;
-  menuP.mesh.visible=false;hudP.mesh.visible=s!=='menu';endP.mesh.visible=false;tabsP.mesh.visible=false;
+  menuP.mesh.visible=false;endP.mesh.visible=false;
+  if(s==='menu'){
+    hudP.mesh.visible=false;tabsP.mesh.visible=true;
+    placeInFront(tabsP,1.12,rig.position.y-0.08);tabsP.dirty=true;
+  }else{
+    tabsP.mesh.visible=false;hudP.mesh.visible=true;
+  }
   orbsG.visible=s==='orbs';blocksG.visible=s==='blocks';
   if(s!=='orbs')orb.run=false;
   menuP.dirty=hudP.dirty=true;
