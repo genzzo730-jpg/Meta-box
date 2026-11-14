@@ -395,7 +395,7 @@ function drawTabs(c,p){
   const W=828,H=522,s=Math.min(p.pw/W,p.ph/H),ox=(p.pw-W*s)/2,oy=(p.ph-H*s)/2;
   c.save();c.translate(ox,oy);c.scale(s,s);
   function box(x,y,w,h,r,fill,stroke){
-    rr(c,x,y,x+w,y+h,r);c.fillStyle=fill;c.fill();
+    rr(c,x,y,w,h,r);c.fillStyle=fill;c.fill();
     if(stroke){c.strokeStyle=stroke;c.lineWidth=1.2;c.stroke()}
   }
   function txt(t,x,y,size=12,weight=600,color='#f7f9fc',align='center'){
